@@ -1,3 +1,5 @@
 build/*
 node_modules
 .idea
+bot_config.json
+repository/*
