@@ -1,5 +1,5 @@
-import {ChatInputCommandInteraction} from "discord.js";
+import {BaseInteraction} from "discord.js";
 
 export interface CommandResponse {
-    handle(interaction: ChatInputCommandInteraction): Promise<void>
+    handle(interaction: BaseInteraction): Promise<void>
 }
