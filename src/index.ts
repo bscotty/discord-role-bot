@@ -5,9 +5,11 @@ import {RoleRepository, RoleRepositoryImpl} from "./repository/roleRepository";
 import {MANAGE_ROLE_COMMAND_NAME} from "./commands/manageRole";
 import {ROLE_COMMAND_NAME} from "./commands/role";
 import {CommandRefresher, CommandRefresherImpl} from "./commands/commandRefresher";
-import {CommandResponse} from "./response/commandResponse";
 import {RoleCommandResponse} from "./response/role";
 import {ManageRoleCommandResponse} from "./response/manageRole";
+import {ListRoleCommandResponse} from "./response/listRole";
+import {LIST_ROLE_COMMAND_NAME} from "./commands/listRole";
+import {RoleAutocompleteCommandResponse} from "./response/roleAutocomplete";
 
 const config: BotConfig = new BotConfigImpl()
 
@@ -17,15 +19,21 @@ const client = new Client(options)
 
 const roleRepository: RoleRepository = new RoleRepositoryImpl(config.guildIds)
 const roleManager: RoleManager = new RoleManagerImpl(client, roleRepository)
-const commandRefresher: CommandRefresher = new CommandRefresherImpl(config, rest, roleRepository)
+const commandRefresher: CommandRefresher = new CommandRefresherImpl(config, rest)
 
-const roleCommandResponse: CommandResponse = new RoleCommandResponse(roleManager, roleRepository)
-const manageRoleCommandResponse: CommandResponse = new ManageRoleCommandResponse(roleManager, commandRefresher)
+const roleCommandResponse = new RoleCommandResponse(roleManager, roleRepository)
+const roleAutoCompleteCommandResponse = new RoleAutocompleteCommandResponse(roleRepository)
+const manageRoleCommandResponse = new ManageRoleCommandResponse(roleManager)
+const listRoleCommandResponse = new ListRoleCommandResponse(roleRepository)
 
 client.once("ready", () => console.log("ready"))
 client.login(config.botToken)
     .then(() => {
         client.on("interactionCreate", async (interaction) => {
+            if (interaction.isAutocomplete() && interaction.commandName == ROLE_COMMAND_NAME) {
+                await roleAutoCompleteCommandResponse.handle(interaction)
+                return
+            }
             if (!interaction.isChatInputCommand()) return;
             if (!config.guildIds.includes(`${interaction.guild.id}`)) {
                 console.warn(`Ignoring command from unknown guild: ${interaction.guild.id} - ${interaction.guild.name}`)
@@ -36,6 +44,9 @@ client.login(config.botToken)
             switch (commandName) {
                 case ROLE_COMMAND_NAME:
                     await roleCommandResponse.handle(interaction)
+                    break;
+                case LIST_ROLE_COMMAND_NAME:
+                    await listRoleCommandResponse.handle(interaction)
                     break;
                 case MANAGE_ROLE_COMMAND_NAME:
                     await manageRoleCommandResponse.handle(interaction)

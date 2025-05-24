@@ -3,12 +3,10 @@ import {ChatInputCommandInteraction, GuildMember} from "discord.js";
 import {MANAGE_ROLE_OPTION_NAME} from "../commands/manageRole";
 import {HandleResult} from "../manager/handleResult";
 import {RoleManager} from "../manager/roleManager";
-import {CommandRefresher} from "../commands/commandRefresher";
 
 export class ManageRoleCommandResponse implements CommandResponse {
     constructor(
-        readonly roleManager: RoleManager,
-        readonly commandRefresher: CommandRefresher
+        readonly roleManager: RoleManager
     ) {
     }
 
@@ -43,6 +41,5 @@ export class ManageRoleCommandResponse implements CommandResponse {
                 await interaction.reply({content: `Got it, I'll manage the "${role.name}" role from now on!`})
                 break
         }
-        await this.commandRefresher.refreshCommands(guild.id)
     }
 }
