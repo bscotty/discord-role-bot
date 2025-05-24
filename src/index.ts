@@ -1,32 +1,49 @@
-import {Bot, BotImpl} from "./bot/bot";
-import {BotConfig, BotConfigImpl} from "./bot/botConfig";
+import {Client, GatewayIntentBits, REST} from "discord.js";
+import {RoleManager, RoleManagerImpl} from "./manager/roleManager";
+import {BotConfig, BotConfigImpl} from "./config/botConfig";
 import {RoleRepository, RoleRepositoryImpl} from "./repository/roleRepository";
-import {ManageRoleCommand} from "./commands/manageRole";
-import {RoleCommandController, RoleCommandControllerImpl} from "./commands/roleCommandController";
-
-console.log('Happy developing ✨')
+import {MANAGE_ROLE_COMMAND_NAME} from "./commands/manageRole";
+import {ROLE_COMMAND_NAME} from "./commands/role";
+import {CommandRefresher, CommandRefresherImpl} from "./commands/commandRefresher";
+import {CommandResponse} from "./response/commandResponse";
+import {RoleCommandResponse} from "./response/role";
+import {ManageRoleCommandResponse} from "./response/manageRole";
 
 const config: BotConfig = new BotConfigImpl()
-const bot: Bot = new BotImpl(config)
-const repository: RoleRepository = new RoleRepositoryImpl(config.guildIds)
 
-bot.login()
-    .then(async (user) => {
-        const controller: RoleCommandController = new RoleCommandControllerImpl(bot, user)
-        const commands = [
-            new ManageRoleCommand(user, repository, controller)
-        ]
-        await bot.addCommands(commands)
-            .then(async () => {
-                await Promise.all(
-                    config.guildIds.map(async (guildId) => {
-                        const roles = await repository.getRoles(guildId)
-                        if (roles.length > 0) {
-                            await controller.refreshRoleCommand(guildId, roles)
-                        }
-                    })
-                )
-            })
-            .catch((it) => console.error(it))
+const rest = new REST({version: "10"}).setToken(config.botToken)
+const options = {intents: [GatewayIntentBits.Guilds,]}
+const client = new Client(options)
+
+const roleRepository: RoleRepository = new RoleRepositoryImpl(config.guildIds)
+const roleManager: RoleManager = new RoleManagerImpl(client, roleRepository)
+const commandRefresher: CommandRefresher = new CommandRefresherImpl(config, rest, roleRepository)
+
+const roleCommandResponse: CommandResponse = new RoleCommandResponse(roleManager, roleRepository)
+const manageRoleCommandResponse: CommandResponse = new ManageRoleCommandResponse(roleManager, commandRefresher)
+
+client.once("ready", () => console.log("ready"))
+client.login(config.botToken)
+    .then(() => {
+        client.on("interactionCreate", async (interaction) => {
+            if (!interaction.isChatInputCommand()) return;
+            if (!config.guildIds.includes(`${interaction.guild.id}`)) {
+                console.warn(`Ignoring command from unknown guild: ${interaction.guild.id} - ${interaction.guild.name}`)
+                return
+            }
+            console.log(`got command ${interaction.commandName}`)
+            const {commandName} = interaction
+            switch (commandName) {
+                case ROLE_COMMAND_NAME:
+                    await roleCommandResponse.handle(interaction)
+                    break;
+                case MANAGE_ROLE_COMMAND_NAME:
+                    await manageRoleCommandResponse.handle(interaction)
+                    break;
+                default:
+                    console.error(`Unknown command name ${commandName}`)
+                    break;
+            }
+        })
     })
-    .catch((it) => console.error(it))
+    .then(() => Promise.all(config.guildIds.map((guild) => commandRefresher.refreshCommands(guild))))
