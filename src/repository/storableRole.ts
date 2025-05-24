@@ -10,13 +10,3 @@ export class StorableRole {
         this.name = name;
     }
 }
-
-export class KeyedStorableRole {
-    readonly guildId: string;
-    readonly storableRole: StorableRole;
-
-    constructor(guildId: string, roleId: string, roleName: string) {
-        this.guildId = guildId;
-        this.storableRole = new StorableRole(roleId, roleName);
-    }
-}
