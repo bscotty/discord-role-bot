@@ -10,8 +10,8 @@ export interface RoleRepository {
 }
 
 export class RoleRepositoryImpl implements RoleRepository {
-    readonly files: { [guildId: string]: JsonFileReader<StorableRole[]> } = {}
-    readonly cache: { [guildId: string]: StorableRole[] } = {}
+    private readonly files: { [guildId: string]: JsonFileReader<StorableRole[]> } = {}
+    private readonly cache: { [guildId: string]: StorableRole[] } = {}
 
     constructor(guildIds: string[]) {
         guildIds.forEach((guildId: string) => {

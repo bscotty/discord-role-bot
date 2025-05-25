@@ -4,9 +4,9 @@ import {MANAGE_ROLE_OPTION_NAME} from "../commands/manageRole";
 import {HandleResult} from "../manager/handleResult";
 import {RoleManager} from "../manager/roleManager";
 
-export class ManageRoleCommandResponse implements CommandResponse {
+export class ManageRoleCommandResponse implements CommandResponse<ChatInputCommandInteraction> {
     constructor(
-        readonly roleManager: RoleManager
+        private readonly roleManager: RoleManager
     ) {
     }
 

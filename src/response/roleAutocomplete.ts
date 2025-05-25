@@ -2,9 +2,9 @@ import {CommandResponse} from "./commandResponse";
 import {AutocompleteInteraction} from "discord.js";
 import {RoleRepository} from "../repository/roleRepository";
 
-export class RoleAutocompleteCommandResponse implements CommandResponse {
+export class RoleAutoCompleteCommandResponse implements CommandResponse<AutocompleteInteraction> {
     constructor(
-        readonly roleRepository: RoleRepository
+        private readonly roleRepository: RoleRepository
     ) {
     }
 

@@ -4,10 +4,10 @@ import {CommandResponse} from "./commandResponse";
 import {RoleRepository} from "../repository/roleRepository";
 import {RoleManager} from "../manager/roleManager";
 
-export class RoleCommandResponse implements CommandResponse {
+export class RoleCommandResponse implements CommandResponse<ChatInputCommandInteraction> {
     constructor(
-        readonly roleManager: RoleManager,
-        readonly roleRepository: RoleRepository
+        private readonly roleManager: RoleManager,
+        private readonly roleRepository: RoleRepository
     ) {
     }
 

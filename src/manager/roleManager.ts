@@ -11,8 +11,8 @@ export interface RoleManager {
 
 export class RoleManagerImpl implements RoleManager {
     constructor(
-        readonly client: Client,
-        readonly repository: RoleRepository
+        private readonly client: Client,
+        private readonly repository: RoleRepository
     ) {
     }
 
