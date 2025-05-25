@@ -2,8 +2,10 @@ import {CommandResponse} from "./commandResponse";
 import {RoleRepository} from "../repository/roleRepository";
 import {ChatInputCommandInteraction} from "discord.js";
 
-export class ListRoleCommandResponse implements CommandResponse {
-    constructor(readonly roleRepository: RoleRepository) {
+export class ListRoleCommandResponse implements CommandResponse<ChatInputCommandInteraction> {
+    constructor(
+        private readonly roleRepository: RoleRepository
+    ) {
     }
 
     async handle(interaction: ChatInputCommandInteraction): Promise<void> {

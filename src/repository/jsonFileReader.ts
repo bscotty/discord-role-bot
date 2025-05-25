@@ -1,7 +1,7 @@
 import fs from "fs";
 
 export class JsonFileReader<T> {
-    readonly path: string
+    private readonly path: string
 
     constructor(path: string) {
         this.path = path

@@ -1,5 +1,5 @@
 import {BaseInteraction} from "discord.js";
 
-export interface CommandResponse {
-    handle(interaction: BaseInteraction): Promise<void>
+export interface CommandResponse<Interaction extends BaseInteraction> {
+    handle(interaction: Interaction): Promise<void>
 }

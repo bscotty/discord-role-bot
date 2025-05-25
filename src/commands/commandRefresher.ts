@@ -10,8 +10,8 @@ export interface CommandRefresher {
 
 export class CommandRefresherImpl implements CommandRefresher {
     constructor(
-        readonly config: BotConfig,
-        readonly rest: REST,
+        private readonly config: BotConfig,
+        private readonly rest: REST
     ) {
     }
 
